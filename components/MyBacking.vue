@@ -8,7 +8,9 @@
         >
       </v-col>
       <v-col cols="3" align-self="center">
-        <v-card-title class="pledged">{{ pledge._dash }} Dash </v-card-title>
+        <v-card-title class="pledged px-0"
+          >{{ pledge._dash }} Dash
+        </v-card-title>
       </v-col>
       <v-col cols="2" align-self="center">
         <v-btn
@@ -39,7 +41,7 @@ export default {
     ...mapActions(['revokePledge']),
     showCampaignName(pledge) {
       const campaign = this.getDocumentById(pledge.campaignId)
-      return campaign || pledge.$id
+      return campaign || { title: pledge.$id }
     },
     async revokePledgeWrapper(pledge) {
       this.isRevoking = true

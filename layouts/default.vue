@@ -36,18 +36,18 @@ export default {
   computed: { ...mapGetters(['getIdentityId']) },
   async created() {
     await this.initWallet({
-      mnemonic:
-        // 'ritual zebra tiny hundred syrup bullet captain royal dinosaur void blind hotel',
-        // 'cheese negative throw yard erase bitter struggle alter barrel found else velvet',
-        'mushroom dove remember inmate garlic inflict fetch swallow write sponsor wall manage',
+      mnemonic: undefined,
+      // 'ritual zebra tiny hundred syrup bullet captain royal dinosaur void blind hotel',
+      // 'cheese negative throw yard erase bitter struggle alter barrel found else velvet',
+      // 'mushroom dove remember inmate garlic inflict fetch swallow write sponsor wall manage',
       // 'essay love suffer inquiry buffalo advance glue boil arrive glove clutch oyster',
       // 'bless fluid disagree depart trade donor uniform dust month side dad tray',
       // 'luggage vacuum solution element rigid have provide enough defense champion frog camera',
       // 'catch fine embrace frequent prepare cruise relax faculty artwork yard sustain report',
       // 'neither neither apple collect warm trip luggage path tenant test liquid effort',
       // 'neck neither tired bargain pizza quantum anxiety wait hire network nasty joke',
-      //  'pride dolphin pluck orphan crunch erode soft damage metal corn risk slot'
-      //  'injury slender heart powder shove canal crash exile nest cement impact chair'
+      // 'pride dolphin pluck orphan crunch erode soft damage metal corn risk slot',
+      // 'injury slender heart powder shove canal crash exile nest cement impact chair',
       // 'shock immense hand zoo mean seat vehicle artwork element month story water',
       // 'economy annual cool rally minute toast gas oyster august lamp sail isolate',
     })
@@ -99,5 +99,28 @@ textarea {
   color: #9c27b0 !important;
   font-size: 20px;
   font-weight: bolder;
+}
+a.linkify {
+  color: #03619c !important;
+  text-decoration: none !important;
+}
+a.linkify :hover {
+  text-decoration: underline !important;
+}
+span.emoji {
+  display: -moz-inline-box;
+  -moz-box-orient: vertical;
+  display: inline-block;
+  vertical-align: baseline;
+  *vertical-align: auto;
+  *zoom: 1;
+  *display: inline;
+  width: 1em;
+  height: 1em;
+  background-size: 1em;
+  background-repeat: no-repeat;
+  text-indent: -9999px;
+  background-position: 50%, 50%;
+  background-size: contain;
 }
 </style>

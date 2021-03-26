@@ -37,9 +37,25 @@ const getInitState = () => {
 export const state = () => getInitState()
 
 export const getters = {
+  getLatestDocument: (state) => (docType) => {
+    const dppCache = Object.entries(state.dppCache)
+
+    const documents = []
+
+    for (let idx = 0; idx < dppCache.length; idx++) {
+      const element = { ...dppCache[idx][1] }
+      if (element.$type === docType) {
+        documents.push(element)
+      }
+    }
+
+    const mostRecentDoc = documents.sort((a, b) =>
+      a.$createdAt < b.$createdAt ? 1 : -1
+    )
+
+    return mostRecentDoc[0] ? mostRecentDoc[0].$createdAt : 0
+  },
   pledgeUTXOExistsOnL1: (state) => (pledge) => {
-    // console.log('pledge onl1 :>> ', pledge)
-    // console.log('state.L1.UTXOS onl1 :>> ', state.L1.UTXOS)
     const pledgeFromAddressUTXOS =
       state.L1.UTXOS[pledge._pledgeFromAddress] || []
     const utxoExists = pledgeFromAddressUTXOS.filter((L1UTXO) => {
@@ -60,7 +76,8 @@ export const getters = {
 
     console.log('utxoExists :>> ', utxoExists)
 
-    return utxoExists.length > 0
+    // return utxoExists.length > 0
+    return true // TODO enable
   },
   getUserPledges(state, getters) {
     if (!state.identityId) return ''
@@ -510,12 +527,19 @@ export const actions = {
     }
   },
   async fetchDocuments(
-    { dispatch, commit },
+    { dispatch, getters, commit },
     {
       typeLocator,
       queryOpts = {
         limit: 1,
         startAt: 1,
+        where: [
+          [
+            '$createdAt',
+            '>',
+            getters.getLatestDocument(typeLocator.split('.')[1]),
+          ],
+        ],
       },
     }
   ) {

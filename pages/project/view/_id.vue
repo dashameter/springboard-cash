@@ -32,7 +32,7 @@
               aria-autocomplete="false
               "
             >
-              {{ campaign.description }}
+              <div v-linkify="campaign.description" />
             </v-card-text>
           </v-card>
         </v-col>
@@ -144,7 +144,9 @@
                     <v-textarea
                       v-model="pledgeMessage"
                       class="mt-4 mx-auto"
+                      auto-grow
                       rows="1"
+                      row-height="12"
                       color="cyan"
                       placeholder="Add Optional Message"
                     >
@@ -205,6 +207,8 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+// eslint-disable-next-line no-unused-vars
+import * as linkify from 'linkifyjs'
 
 const Dashcore = require('@dashevo/dashcore-lib')
 // eslint-disable-next-line no-unused-vars
@@ -231,6 +235,7 @@ export default {
       'getCampaignPledges',
       'getRedemptionTxId',
       'getUsernameByOwnerId',
+      'getLatestDocument',
     ]),
     campaign() {
       const document = this.getDocumentById(this.campaignId)
@@ -265,12 +270,18 @@ export default {
 
     await this.isClientReady()
 
-    await this.fetchDocumentById({
+    const projectid = await this.fetchDocumentById({
       typeLocator: 'springboard.campaign',
       docId: this.campaignId,
     })
 
-    // this.loopGetSumPledges()
+    if (projectid === undefined) {
+      this.$router.push('/')
+      this.showSnackbar({ text: 'This project id does not exist.' })
+    }
+
+    this.loopFetchNewPledges()
+    this.loopCheckPledges()
   },
   methods: {
     ...mapActions([
@@ -282,26 +293,39 @@ export default {
       'fetchPledges',
       'redeemTx',
       'fetchRedemptionState',
+      'showSnackbar',
+      'fetchL1UTXOSByAddress',
     ]),
-    // async loopGetSumPledges() {
-    //   console.log(
-    //     'this.getSumPledges(this.campaignId) :>> ',
-    //     this.getSumPledges(this.campaignId)
-    //   )
+    async loopFetchNewPledges() {
+      await this.fetchDocuments({
+        typeLocator: 'springboard.pledge',
+        queryOpts: {
+          where: [
+            ['campaignId', '==', this.campaignId],
+            ['$createdAt', '>', this.getLatestDocument('pledge')],
+          ],
+          orderBy: [['$createdAt', 'desc']],
+        },
+      })
+      await this.$sleep(1000)
+      this.loopFetchNewPledges()
+    },
+    async loopCheckPledges() {
+      console.log('campaign pledges', this.getCampaignPledges(this.campaignId))
+      for (
+        let idx = 0;
+        idx < this.getCampaignPledges(this.campaignId).length;
+        idx++
+      ) {
+        const checkPledges = await this.fetchL1UTXOSByAddress(
+          this.getCampaignPledges(this.campaignId)[idx]._pledgeFromAddress
+        )
+        console.log('checkPledges', checkPledges)
+      }
+      await this.$sleep(1000)
+      this.loopCheckPledges()
+    },
 
-    //   console.log('this.isDestroyed :>> ', this.isDestroyed)
-
-    //   if (this.getSumPledges(this.campaignId) >= this.campaign.amount) {
-    //     console.log('this project has enough backing, will redeem now:')
-    //     this.redeemTx({ campaignId: this.campaignId })
-    //     this.isRedeemed = true
-    //   }
-
-    //   if (this.isRedeemed === false && this.isDestroyed === true) {
-    //     await this.$sleep(1000)
-    //     this.loopGetSumPledges()
-    //   }
-    // },
     DuffsinDash(duffs) {
       return Unit.fromSatoshis(duffs).toBTC()
     },
